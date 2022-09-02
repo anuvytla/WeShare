@@ -1,6 +1,6 @@
 const {User, Thoughts} =  require('../models');
 
-
+// creating the user
 const createUser = async(req,res) => {
     try{
         let userData = await User.create(req.body);
@@ -10,7 +10,7 @@ const createUser = async(req,res) => {
     }
 };
 
-
+// Update one user by their _id
 const updateUser = async(req,res) => {
     try {
         let userData = await User.findOneAndUpdate(

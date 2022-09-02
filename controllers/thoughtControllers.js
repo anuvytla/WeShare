@@ -1,11 +1,12 @@
-const {Thoughts, Users} = require('../models');
+const {Thoughts, User} = require('../models');
 
+// Create a new thought.
 const createThought = async(req,res) => {
     try {
         let newThought = await Thoughts.create(req.body);
-        let updatedUser = await Users.findOneAndUpdate(
+        let updatedUser = await User.findOneAndUpdate(
             {
-                _id: req.body.userId,
+                username: req.body.username,
             },
             {
                 $push: { thoughts: newThought._id },
@@ -17,7 +18,7 @@ const createThought = async(req,res) => {
         if(!updatedUser) {
             res.status(404).json({message:'Thought created but no user found with this Id!'});
         }
-        res.status(200).json({message: 'Thought successfully created!!'})
+        res.status(200).json(newThought);
 
     } catch(error) {
         console.log(error);
@@ -25,12 +26,12 @@ const createThought = async(req,res) => {
     }
 };
 
-
+// Update single thought by it's _id
 const updateThought = async (req,res) => {
     try{
         let thoughtData = await Thoughts.findOneAndUpdate(
             { 
-                _id: req.params.thoughtsId 
+                _id: req.params.thoughtId 
             },
             { 
                 $set: req.body 
@@ -50,11 +51,11 @@ const updateThought = async (req,res) => {
     }
 }
 
-
+// Delete single thought by its _id.
 const deleteThought = async (req,res) => {
     try {
         let thoughtData = await Thoughts.findOneAndRemove({ _id: req.params.thoughtId });
-        let deletedThought = await Users.findOneAndUpdate(
+        let updatedUser = await User.findOneAndUpdate(
             { 
                 thoughts: req.params.thoughtId 
             },
@@ -68,15 +69,16 @@ const deleteThought = async (req,res) => {
           if (!thoughtData) {
             res.status(404).json({ message: "No thought found with this id!" });
           }
-          if (!deleteThought) {
-            res.status(404).json({message: 'Thought created successfully. but no user found with this id!'})
+          if (!updatedUser) {
+            res.status(404).json({message: 'Thought delete successfully. but no user found with this thought!'})
           }
-          res.status(200).json(deleteThought);
+          res.status(200).json({message: 'Thought deleted successfully and removed from user thoughts'});
     }catch (error) {
         res.status(500).json(error);
     }
 };
 
+// Fetch all of the thoughts.
 const getThoughts = async(req,res) => {
     try{
         let thoughtData = await Thoughts.find()
@@ -90,11 +92,12 @@ const getThoughts = async(req,res) => {
     }
 };
 
+// Get single thought by it's _id
 const getSingleThought = async (req,res) => {
     try {
-        let thoughtData = Thoughts.findOne({_id:req.param.thoughtId});
+        let thoughtData = await Thoughts.findOne({_id:req.params.thoughtId});
         if(!thoughtData) {
-            res.status(404).json({message: 'No thoughts found for this Id  !'});
+            res.status(404).json({message: 'No thoughts found for this Id!'});
         }
         res.status(200).json(thoughtData);
     } catch(error) {
@@ -102,9 +105,11 @@ const getSingleThought = async (req,res) => {
     }
 };
 
+// Add a reaction to the thought.
 const addReaction = async(req,res) => {
     try {
-        let thoughtData = Thoughts.findOneAndUpdate(
+        // Find the thought by _id and update.
+        let thoughtData = await Thoughts.findOneAndUpdate(
             { 
                 _id: req.params.thoughtId 
             },
@@ -117,7 +122,7 @@ const addReaction = async(req,res) => {
             }
           );
           if (!thoughtData) {
-            return res.status(404).json({ message: "No thought found with this id!" });
+            res.status(404).json({ message: "No thought found with this id!" });
           }
           res.json(thoughtData);
     } catch(error) {
@@ -125,13 +130,16 @@ const addReaction = async(req,res) => {
     }
 };
 
+// Delete a reaction on a thought
 const removeReaction = async(req,res) => {
     try {
-        let thoughtData = Thoughts.findOneAndUpdate(
+        // Find the thought with thoughtId.
+        let thoughtData = await Thoughts.findOneAndUpdate(
             { 
                 _id: req.params.thoughtId 
             },
             { 
+                // Remove reaction identified by reactionId.
                 $pull: { reactions: { reactionId: req.params.reactionId } } 
             },
             { 
@@ -140,7 +148,7 @@ const removeReaction = async(req,res) => {
             }
           );
           if (!thoughtData) {
-            return res.status(404).json({ message: "No thought found with this id!" });
+            res.status(404).json({ message: "No thought found with this id!" });
           }
           res.json(thoughtData);
     } catch(error) {
@@ -149,6 +157,5 @@ const removeReaction = async(req,res) => {
 };
 
 
-
-
+// exporting thoughts methods
 module.exports = {createThought, updateThought,deleteThought, getThoughts, getSingleThought, addReaction, removeReaction};

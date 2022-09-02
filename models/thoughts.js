@@ -1,8 +1,8 @@
 const {Schema, model} = require('mongoose');
-const reactionSchema = require('./Reactions');
+const Reaction = require('./Reactions');
 const moment = require('moment');
 
-
+// create blue print for thoughts
 const thoughtSchema = new Schema (
     {
         thoughtText: {
@@ -11,7 +11,7 @@ const thoughtSchema = new Schema (
             minlength: 1,
             maxlength: 280
         },
-
+        // using moment.js to format timestamp  for the thought creation time and date
         createdAt: {
             type: Date,
             default: Date.now,
@@ -21,7 +21,7 @@ const thoughtSchema = new Schema (
             type: String,
             required: true,
         },
-         reactions: [reactionSchema],
+        reactions: [Reaction],
     },
     {
         toJSON: {
@@ -30,11 +30,13 @@ const thoughtSchema = new Schema (
         id: false,
     }
 );
-
+// Create a virtual property `reactionCount` that gets the reaction length  per post
 thoughtSchema.virtual('reactionCount').get(function () {
     return this.reactions.length;
 });
 
+
+// Intializing thought models
 const Thoughts = model('Thoughts' , thoughtSchema);
 
 module.exports = Thoughts;

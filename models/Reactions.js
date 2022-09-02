@@ -19,7 +19,7 @@ const reactionSchema = new Schema(
             type: String,
             required: true,
         },
-
+        // created a timestamp format for reactions using moment.js
         creadtedAt: {
             type: Date,
             default: Date.now,
@@ -34,6 +34,5 @@ const reactionSchema = new Schema(
         id: false,
     }
 );
-
 
 module.exports = reactionSchema;

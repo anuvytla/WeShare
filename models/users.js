@@ -1,5 +1,6 @@
 const {Schema, model} = require('mongoose');
 
+// creates blueprint for user object
 const userSchema = new Schema(
     {
         username: {
@@ -13,6 +14,7 @@ const userSchema = new Schema(
             type: String,
             required : true,
             unique: true,
+            // validating email of the user using the regex expression
             match: [
                 /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,3})$/,
                 "Enter valid email address"
@@ -41,11 +43,13 @@ const userSchema = new Schema(
     }
 );
 
-
+// Create a virtual property `friendCount` that get the friends length  for each user
 userSchema.virtual('friendCount').get(function (){
     return this.friends.length;
 });
 
+
+// Intializing user models
 const User = model("Users", userSchema);
 
 module.exports = User;
